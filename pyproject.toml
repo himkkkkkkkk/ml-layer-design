@@ -1,0 +1,14 @@
+[project]
+name = "mine"
+version = "0.1.0"
+description = "Qwen3-4B layer-by-layer output analysis"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.45.0",
+    "accelerate>=0.30.0",
+    "einops>=0.6.0",
+    "datasets>=2.14.0",
+    "safetensors>=0.4.0",
+]
