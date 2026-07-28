@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
 """
-Batch run: extract layer outputs for all prompts in prompts.py.
+Batch run: extract layer outputs for all prompts in datasets/prompts.py.
 
 Usage:
-    python batch_run.py -t 50           # run all with generation
-    python batch_run.py --dry-run        # list what would run
-    python batch_run.py -t 0             # extraction only (fast)
+    uv run python scripts/batch_extract.py -t 512
+    uv run python scripts/batch_extract.py --dry-run
+    uv run python scripts/batch_extract.py -t 0
 """
 
 from __future__ import annotations
 
-import nix_gpu_fix  # noqa: E402,F401
-
-import argparse, json, os, subprocess, sys
+import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from prompts import flatten_prompts
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from src import nix_gpu_fix  # noqa: E402
+
+import argparse, json, os, subprocess
+from datasets.prompts import flatten_prompts
 
 OUT_DIR = Path("output/batch")
-VENV_PYTHON = str(Path(__file__).resolve().parent / ".venv" / "bin" / "python")
-MAIN = str(Path(__file__).resolve().parent / "main.py")
+VENV_PYTHON = str(ROOT / ".venv" / "bin" / "python")
+MAIN = str(ROOT / "scripts" / "extract.py")
 
 ENV = {**os.environ,
        "LD_LIBRARY_PATH": "/run/opengl-driver/lib:"
@@ -31,7 +34,7 @@ ENV = {**os.environ,
 def main():
     p = argparse.ArgumentParser(description="Batch layer extraction")
     p.add_argument("--dry-run", action="store_true")
-    p.add_argument("--max-new-tokens", "-t", type=int, default=50)
+    p.add_argument("--max-new-tokens", "-t", type=int, default=512)
     p.add_argument("--dtype", default="float16", choices=["float32", "float16", "bfloat16"])
     args = p.parse_args()
 

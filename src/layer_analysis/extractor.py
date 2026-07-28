@@ -5,7 +5,7 @@ Core API
 --------
     from layer_analysis import LayerAnalyzer
 
-    analyzer = LayerAnalyzer("Qwen/Qwen3-4B-Base")
+    analyzer = LayerAnalyzer("Qwen/Qwen3-4B-Instruct-2507")
     states = analyzer.get_hidden_states("hello world", pool="last_token")
     # → torch.Tensor  shape (num_layers+1, hidden_dim)
     #   states[0] = embedding, states[1..N] = decoder layers
@@ -111,14 +111,14 @@ class LayerAnalyzer:
 
     Usage::
 
-        analyzer = LayerAnalyzer("Qwen/Qwen3-4B-Base")
+        analyzer = LayerAnalyzer("Qwen/Qwen3-4B-Instruct-2507")
         states = analyzer.get_hidden_states("hello", pool="last_token")
         results = analyzer.run_all("hello", pool="mean_content")
     """
 
     def __init__(
         self,
-        model_id: str = "Qwen/Qwen3-4B-Base",
+        model_id: str = "Qwen/Qwen3-4B-Instruct-2507",
         dtype: torch.dtype = torch.float32,
         device_map: str = "auto",
     ):
@@ -138,7 +138,7 @@ class LayerAnalyzer:
 
     def generate(
         self, text: str, *, chat: bool = False, thinking: bool = True,
-        max_new_tokens: int = 50, temperature: float = 0.7, top_p: float = 0.95,
+        max_new_tokens: int = 512, temperature: float = 0.7, top_p: float = 0.95,
     ) -> str:
         """Generate text continuation. Returns empty string if max_new_tokens <= 0."""
         if max_new_tokens <= 0:
@@ -180,7 +180,7 @@ class LayerAnalyzer:
 
     def run_all(
         self, text: str, *, pool: str = "mean_content", chat: bool = False,
-        thinking: bool = True, max_new_tokens: int = 50, temperature: float = 0.7,
+        thinking: bool = True, max_new_tokens: int = 512, temperature: float = 0.7,
         extract: bool = True,
     ) -> dict:
         """Run extraction + generation, return result dict for save_results()."""

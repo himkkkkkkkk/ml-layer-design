@@ -1,31 +1,30 @@
 #!/usr/bin/env python3
 """
-Qwen3 Layer-by-Layer Output Analysis
-=====================================
 Extract hidden states from every transformer layer.
 
 Usage:
-    python main.py -p "hello" --pool last_token --dtype float16
-    python main.py -p "hello" -n my_run -t 50 --temperature 0.7
+    uv run python scripts/extract.py -p "hello" --pool last_token --dtype float16
+    uv run python scripts/extract.py -p "hello" -n my_run -t 512
 """
 
 from __future__ import annotations
 
-import nix_gpu_fix  # noqa: E402,F401 — must be before torch on NixOS
-
-import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
+from src import nix_gpu_fix  # noqa: E402 — must be before torch on NixOS
+
+import argparse
 import torch
-from layer_analysis import LayerAnalyzer, save_results
+from src.layer_analysis import LayerAnalyzer, save_results
 
 
 def main():
     p = argparse.ArgumentParser(description="Qwen3 layer-by-layer output analysis")
-    p.add_argument("--model", "-m", default="Qwen/Qwen3-4B-Base")
+    p.add_argument("--model", "-m", default="Qwen/Qwen3-4B-Instruct-2507")
     p.add_argument("--prompt", "-p", default="The meaning of life is")
     p.add_argument("--chat", action="store_true", help="Wrap in chat template")
     p.add_argument("--thinking", action="store_true", default=True)
@@ -34,7 +33,7 @@ def main():
                    choices=["last_token", "mean_content", "mean_all"])
     p.add_argument("--output-dir", "-o", default="output")
     p.add_argument("--name", "-n", default=None, help="Subfolder under output-dir")
-    p.add_argument("--max-new-tokens", "-t", type=int, default=50)
+    p.add_argument("--max-new-tokens", "-t", type=int, default=512)
     p.add_argument("--temperature", type=float, default=0.7)
     p.add_argument("--top-p", type=float, default=0.95)
     p.add_argument("--dtype", default="float32",

@@ -1,14 +1,32 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "mine"
+name = "layer-analysis"
 version = "0.1.0"
-description = "Qwen3-4B layer-by-layer output analysis"
+description = "Qwen3 layer-by-layer output analysis"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
-    "torch>=2.0.0",
-    "transformers>=4.45.0",
     "accelerate>=0.30.0",
+    "torch>=2.0.0",
+    "transformers>=4.45",
     "einops>=0.6.0",
     "datasets>=2.14.0",
     "safetensors>=0.4.0",
+    "matplotlib>=3.8",
+    "scikit-learn>=1.5",
+    "numpy>=1.26",
 ]
+
+[project.scripts]
+layer-extract = "scripts.extract:main"
+layer-batch = "scripts.batch_extract:main"
+layer-analyze = "scripts.analyze:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["src*", "scripts*", "datasets*"]

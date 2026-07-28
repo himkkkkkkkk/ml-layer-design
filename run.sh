@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 # NixOS library paths: nvidia drivers + gcc + zlib
 export LD_LIBRARY_PATH="/run/opengl-driver/lib:/nix/store/hngmi01i8wgi25a0byrxcn4ysz5j79mw-gcc-15.2.0-lib/lib:/nix/store/dbz6pb9g67kpgpl95k8d85kzpxm1c32p-zlib-1.3.2/lib:$LD_LIBRARY_PATH"
 
-# NixOS: triton JIT needs a C compiler and linker
+# NixOS: triton JIT needs a C compiler
 GCC_DIR="/nix/store/3wkpp7mjlh4qxij92iz99r43aifzgajd-gcc-15.2.0/bin"
 export PATH="$GCC_DIR:$PATH"
 export CC="$GCC_DIR/gcc"
