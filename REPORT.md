@@ -9,6 +9,8 @@
 
 实验设计参考了 David Ng 的博客文章 *"LLM Neuroanatomy III: Do LLMs Break the Sapir-Whorf Hypothesis?"*。
 
+**所有图表位于对应 `results/` 子目录中。**
+
 
 ## 实验一：多语言 Sapir-Whorf 测试（`scripts/run.py`）
 
@@ -19,6 +21,12 @@
   - RED：同一事实，不同语言（如 EN"sun rises"↔ ZH"太阳升起"）
   - GREEN：同一语言，不同事实（如 EN"sun rises"↔ EN"water boils"）
   - BLUE：不同事实，不同语言（基线）
+
+### 核心曲线
+
+![SW Statements](results/sapir_whorf/sw_main_statements.png)
+
+![SW Centered](results/sapir_whorf/sw_centered_statements.png)
 
 ### 结果
 
@@ -31,36 +39,50 @@ L23–L35: GREEN > RED  → 语言回归（输出准备）
 - RED > GREEN 的层数：17/37（46%）
 - 峰值 RED-GREEN 差距：约 +0.21
 
+### 聚类图
+
+| 按语言聚类（Centered PCA） | 按话题聚类（Statements） | 按话题聚类（Questions） |
+|--------------------------|------------------------|------------------------|
+| ![](results/sapir_whorf/pca_centered.png) | ![](results/sapir_whorf/pca_topic_all_s.png) | ![](results/sapir_whorf/pca_topic_all_q.png) |
+
+L13–L18 层话题开始明显聚类。
+
+### 附加图表
+
+- `sw_per_lang_pair.png`：各语言对的跨语言语义收敛曲线
+- `sw_topic_heatmap.png`：8 个话题 × 37 层的跨语言相似度热力图
+- `sw_topic_type_curve.png`：同话题内同类型(S↔S) vs 不同类型(S↔Q)对比
+- `pca_lda_lang.png`：LDA 监督按语言分离
+- `pca_lda_type.png`：LDA 监督按陈述/疑问分离
+- `pca_heatmap.png`：最终层余弦距离矩阵
+
 ### 结论
 
-即使是在 4B 规模的基座模型上，也存在三层结构：**输入层处理语言 → 中间层编码语义 → 输出层回归语言**。与博客中 7B–72B 指令模型相比，效应较弱但模式一致。说明 interlingua 是预训练的自然涌现属性，指令微调仅起到放大作用。
-
-### 关键图表
-
-- `sw_main_statements.png`：RED/GREEN/BLUE 曲线（含 ±1σ 带和阶段标注）
-- `sw_centered_statements.png`：减去 BLUE 基线后的中心化曲线
-- `sw_per_lang_pair.png`：各语言对的跨语言语义收敛
-- `sw_topic_heatmap.png`：各话题的跨语言相似度热力图
+即使是在 4B 规模的指令模型上，也存在三层结构：**输入层处理语言 → 中间层编码语义 → 输出层回归语言**。与博客中 7B–72B 指令模型相比，效应较弱但模式一致。说明 interlingua 是预训练的自然涌现属性，指令微调仅起到放大作用。
 
 
 ## 实验二：句法变换测试（`scripts/syn_test.py`）
 
 ### 方法
 
-- **数据**：8 个事实 × 6 种句法形式（plain/inverted/cleft/emphatic/impersonal/topicalized）= 48 条 prompt
-- **仅英语**
-- **指标**：RED = 同一事实不同句法 vs GREEN = 同一句法不同事实
-- **可视化**：PCA 图中颜色=话题，形状=句法结构
+- **数据**：8 个事实 × 6 种句法形式 = 48 条 prompt，仅英语
+  - plain / inverted / cleft / emphatic / impersonal / topicalized
+- **可视化**：PCA 图 **颜色=话题，形状=句法结构**
+
+### 核心图表
+
+![Combined](results/syn_test/pca_combined_all.png)
+
+![RGB Curves](results/syn_test/syn_rgb_curves.png)
 
 ### 结果
 
-- 全层平均：句法分离度 0.81（最高 = 最不敏感）
-- L13–L18：句法分离度 0.80
-- 句法变化几乎不造成表示差异
+- 全层平均相似度：句法变化 0.81（最高 = 最不敏感）
+- L13–L18：句法变化 0.80
 
 ### 结论
 
-句法结构（陈述/倒装/分裂句/强调句/无人称/主题化）对模型的中间层表示**几乎没有影响**。同一事实无论用什么句法表达，向量都高度相似。说明模型在处理语义时，语法形式已被压缩。
+句法结构对模型的中间层表示**几乎没有影响**。同一事实无论用什么句法表达（颜色相同），向量都高度聚类。语法形式已被模型压缩。
 
 
 ## 实验三：语用模式测试（`scripts/prag_test.py`）
@@ -68,28 +90,31 @@ L23–L35: GREEN > RED  → 语言回归（输出准备）
 ### 方法
 
 - **数据**：8 个事实 × 3 种语用模式（陈述/疑问/命令）× 4 种变体 = 96 条 prompt
-- **仅英语**
-- **指标**：RED = 同一事实不同语用模式 vs GREEN = 同一语用模式不同事实
-- **可视化**：PCA 图中颜色=话题，形状=语用模式
+- **可视化**：PCA 图 **颜色=话题，形状=语用模式**
+
+### 核心图表
+
+![Combined](results/prag_test/pca_combined_all.png)
+
+![RGB Curves](results/prag_test/prag_rgb_curves.png)
+
+![Per Mode](results/prag_test/prag_per_mode.png)
+
+### 全层对比
+
+![Mode All](results/prag_test/pca_mode_all.png)
 
 ### 结果
 
 | 对比维度 | L13–L18 相似度 | 全层平均 |
 |---------|---------------|---------|
 | 句法变化 | 0.80 | 0.81 |
-| 语用模式变化 | 0.58 | 0.58 |
-| 语言变化 | 0.68 | 0.58 |
+| 语用模式变化（S vs Q vs O） | 0.58 | 0.58 |
+| 语言变化（EN vs ZH） | 0.68 | 0.58 |
 
 ### 结论
 
-语用模式（陈述 vs 疑问 vs 命令）造成的表示差异**远大于**句法变化（0.58 vs 0.81），且与语言差异（0.58）大小相当。这说明"提问"vs"陈述"vs"命令"是一种更深层的语义信号，模型不会将其与句法形式一同压缩。疑问句的特殊性不在于语言形式，而在于其承载的**语用行动**（请求回答）。
-
-### 子实验：疑问句内部对比
-
-- 同一疑问句，不同措辞变体：相似度 **0.90**（几乎相同）
-- 同一疑问句，不同语言：相似度 **0.66**（显著分离）
-
-疑问句对语言变化更敏感——同一问题用英语和中文表达，差异远大于用不同英语措辞表达。
+语用模式造成的表示差异**远大于**句法变化（0.58 vs 0.81），且与语言差异（0.58）大小相当。"提问"vs"陈述"vs"命令"是一种更深层的语义信号，模型不会将其与句法形式一同压缩。疑问句的特殊性不在于语言形式，而在于其承载的**语用行动**（请求回答）。
 
 
 ## 实验四：迭代生成测试（`scripts/iterate_test.py`）
@@ -98,6 +123,14 @@ L23–L35: GREEN > RED  → 语言回归（输出准备）
 
 - 初始 prompt → 生成 → 用生成结果作为新 prompt → 重复 20 次
 - 追踪各层连续迭代间的余弦相似度
+
+### 核心图表
+
+![Consecutive Sim](results/iterate/consecutive_sim.png)
+
+![Drift from Original](results/iterate/drift_from_original.png)
+
+![Self-Similarity Matrix](results/iterate/self_sim_matrix.png)
 
 ### 结果
 
@@ -111,7 +144,7 @@ L23–L35: GREEN > RED  → 语言回归（输出准备）
 
 ### 结论
 
-最稳定的层是 **L30–L34（后期层）**，而非中间层。中间层（L6–L23）变化最大——它们在做"工作"（处理具体措辞和细节）。后期层将细节压缩，回归到稳定的核心语义。这与实验一的发现一致：interlingua 不在正中间，而在**中后期**。
+最稳定的层是 **L30–L34（后期层）**，而非中间层。中间层（L6–L23）变化最大——它们在做"工作"（处理具体措辞和细节）。后期层将细节压缩，回归到稳定的核心语义。
 
 
 ## 实验五：多话题迭代聚类测试（`scripts/iterate_multi.py`）
@@ -120,7 +153,12 @@ L23–L35: GREEN > RED  → 语言回归（输出准备）
 
 - 8 个话题 × 5 次迭代 = 40 个向量
 - PCA 降维，颜色标记话题
-- 检验同一话题的不同迭代是否聚类在一起
+
+### 核心图表
+
+![PCA by Topic](results/iterate_multi/pca_topic_all.png)
+
+![Within vs Cross](results/iterate_multi/within_vs_cross.png)
 
 ### 结果
 
@@ -134,7 +172,7 @@ L23–L35: GREEN > RED  → 语言回归（输出准备）
 
 ### 结论
 
-中层（L10–L12）话题内/跨话题**差距最大**（0.22），说明中层最能区分不同话题。后期层（L30–L34）话题内相似度最高（0.83）但跨话题相似度也很高（0.76），差距缩小——后期层压缩了话题间的差异，趋向普适表示。
+中层（L10–L12）话题内/跨话题**差距最大**（0.22），说明中层最能区分不同话题。后期层话题内相似度最高（0.83）但跨话题相似度也很高（0.76），差距缩小——后期层压缩了话题间的差异，趋向普适表示。
 
 
 ## 综合结论
@@ -157,14 +195,6 @@ L35:      输出投射 —— 强制选择下一个 token
 | 句法结构（plain vs cleft vs inverted...） | 0.80 | 几乎无影响 |
 | 语用模式（陈述 vs 疑问 vs 命令） | 0.58 | 显著影响 |
 | 语言（英语 vs 中文 vs 德语...） | 0.58 | 显著影响 |
-
-- **句法不影响语义** — 模型已学会压缩语法形式
-- **语用模式影响语义** — "问"与"说"在模型中是不同的语义行为
-- **语言差异与语用差异同级** — 跨语言和跨语用模式的分离度相当
-
-### 与博客的差异
-
-博客使用的 7B–72B 指令模型显示约 25 层 RED > GREEN，而我们的 4B 指令模型仅 17 层。差距来自模型规模——interlingua 随规模增长而增强，4B 模型已展现该结构但不够强。
 
 ### 核心发现
 
